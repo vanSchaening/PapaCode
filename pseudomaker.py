@@ -4,7 +4,7 @@ from stacksFiles import *
 from argparse import ArgumentParser
 
 
-parser = ArgumentParser(description="Using Stacks output, create pseudo genomes for loci with FST above a given value. For each locus, a .fasta file will be created, with a pseudosequence for each population.")
+parser = ArgumentParser(description="Using Stacks output, create pseudo genomes for loci with FST above a given value. For each locus, a .fasta file will be created, with a pseudosequence for each population, as specified through the parameters.")
 parser.add_argument("infiles",
                     help = "path to Stacks output files for a batch",
                     type = str)
@@ -27,6 +27,10 @@ parser.add_argument("--snps",
 parser.add_argument("--missing",
                     help = "character to represent missing nucleotides. Default: '-'",
                     type = str)
+parser.add_argument("--alleles",
+                    help = "If 1, output the sequence with ambiguity codes. If 2, pseudogenome that concatenates both alleles",
+                    type = int,
+                    default = 2)
 parser.add_argument("--concatenated",
                     help = "instead of having one sequence per locus per individual, concatenate all the loci for each individual",
                     type = bool)
@@ -72,6 +76,9 @@ class Genes:
         return self.snps[(locus,pos)]
     def fetch_vals(self,locus,pos):
         return self.loci[locus][pos]
+
+
+
 def filter_by_fst(filelist, val, genes):
     print "Filtering comparisons ..."
     # Filter files by fst, retain values >= val
@@ -164,13 +171,32 @@ def get_snp_nucs(value, thing, char):
         return char, char
     return "-","-"
 
-def mutate(seq, pos, mut1, mut2):
+def get_ambiguities(mut1, mut2):
+    ambiguities = {frozenset(['A','T']): 'W',
+                   frozenset(['A','G']): 'R',
+                   frozenset(['A','C']): 'M',
+                   frozenset(['C','G']): 'S',
+                   frozenset(['C','T']): 'Y',
+                   frozenset(['G','T']): 'K'}
+    return ambiguities[frozenset([mut1,mut2])]
+
+def mutate_1(seq, pos, mut1, mut2):
+    if mut1 == mut2:
+        seq[pos] = mut1
+        return
+    seq[pos] = get_ambiguities(mut1,mut2)
+
+def mutate_2(seq, pos, mut1, mut2):
+    n = len(seq)
+    seq.extend(seq)
     seq[pos] = mut1
-    seq[pos+100] = mut2
+    seq[pos+n] = mut2
+
 
 def make_fasta_header(locus,sample):
     return ">" + sample + "| locus=" + locus +"\n"
  
+
 ## ------- Main/Testing --------------------------------------------
 
 # Receive command line arguments
@@ -180,6 +206,8 @@ genes = Genes()
 # Object that handles stacks files
 if not args.outdir:
     args.outdir = "pseudogenomes_fst" + str(args.fst)
+if (args.alleles != 1) and (args.alleles !=2):
+    exit("'Alleles' can only have values of 1 or 2. If you omit the --alleles flag, it will assume the default value of 2.")
 batchfiles = Files(args.infiles, 
                    args.batch,
                    args.outdir,
@@ -202,12 +230,16 @@ for locus in genes.fetch_loci():
     if not args.concatenated:
         out = open(batchfiles.fetch_out() + "pseudo." + locus + ".fasta",'w')
     for i in range(len(samples)):
-        pseudo = seq + seq
+#        pseudo = seq + seq
+        pseudo = seq
         for pos in genes.fetch_pos(locus):
             mut1, mut2 = get_snp_nucs(genes.fetch_vals(locus,pos),
                                       genes.fetch_snp(locus,pos)[i],
                                       args.missing)
-            mutate(pseudo, pos, mut1, mut2)
+            if args.alleles == 2:
+                mutate_2(pseudo, pos, mut1, mut2)
+            else:
+                mutate_1(pseudo, pos, mut1, mut2)
 
         if not args.concatenated:
             header = make_fasta_header(locus,samples[i])
