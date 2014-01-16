@@ -27,6 +27,9 @@ parser.add_argument("--snps",
 parser.add_argument("--missing",
                     help = "character to represent missing nucleotides. Default: '-'",
                     type = str)
+parser.add_argument("--concatenated",
+                    help = "instead of having one sequence per locus per individual, concatenate all the loci for each individual",
+                    type = bool)
 
 class Genes:
     #initialize
@@ -190,10 +193,14 @@ get_samples(batchfiles.fetch('snps'),
          genes)
 
 samples = genes.fetch_samples()
+if args.concatenated:
+    individuals = {sample:[] for sample in samples}
+
 for locus in genes.fetch_loci():
     mutlist = []
     seq = genes.fetch_seq(locus)
-    out = open(batchfiles.fetch_out() + "pseudo." + locus + ".fasta",'w')
+    if not args.concatenated:
+        out = open(batchfiles.fetch_out() + "pseudo." + locus + ".fasta",'w')
     for i in range(len(samples)):
         pseudo = seq + seq
         for pos in genes.fetch_pos(locus):
@@ -201,7 +208,22 @@ for locus in genes.fetch_loci():
                                       genes.fetch_snp(locus,pos)[i],
                                       args.missing)
             mutate(pseudo, pos, mut1, mut2)
-        header = make_fasta_header(locus,samples[i])
+
+        if not args.concatenated:
+            header = make_fasta_header(locus,samples[i])
+            out.write(header)
+            out.write(stringify(pseudo)+"\n")
+        else:
+            individuals[samples[i]] = individuals[samples[i]] + pseudo
+    if not args.concatenated:        
+        out.close()
+
+
+if args.concatenated:
+    out = open(batchfiles.fetch_out() + "concatenated.fasta",'w')
+    for sample in individuals:
+        header = make_fasta_header("(fst>="+str(args.fst)+")",sample)
         out.write(header)
-        out.write(stringify(pseudo)+"\n")
+        out.write(stringify(individuals[sample])+"\n")
     out.close()
+        
