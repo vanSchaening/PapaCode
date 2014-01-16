@@ -14,8 +14,8 @@ parser.add_argument("--batch",
                     type = str)
 parser.add_argument("--outdir",
                     help = "path to the output directory. Will attempt to create it in working directory if it does not exist",
-                    required = True,
-                    type = str)
+                    type = str,
+                    default = None)
 parser.add_argument("--fst",
                     help = "minimum fst",
                     type = float,
@@ -28,67 +28,47 @@ parser.add_argument("--missing",
                     help = "character to represent missing nucleotides. Default: '-'",
                     type = str)
 
-
-# Object to manage locus, snp, and sequence information
-Genes:
-
+class Genes:
     #initialize
     def __init__(self):
         self.loci = {}
         self.snps = {}
         self.samples = []
-
     #increment locus count
     def count_locus(self, locus):
         try:
             self.loci[locus]['count'] += 1
         except KeyError:
             self.loci[locus] = {'count':1}
-
     #Does a locus exist here?
     def check_locus(self, locus):
         return locus in self.loci
-
     #Return a list of loci, without additional info
     def fetch_loci(self):
         return self.loci.keys()
-
     #Store a consensus sequence for a locus
     def add_seq(self, locus, sequence):
         try:
             self.loci[locus]['seq'] = sequence
         except KeyError:
             self.loci[locus] = {'seq':sequence}
-
-    #Return the consensus sequence for a locus
     def fetch_seq(self,locus):
         return self.loci[locus]['seq']
-        
     def add_sample(self,name):
         self.samples.append(name)
-
     def fetch_samples(self):
         return self.samples
-
-    # Add snp information for a specific position in a sample
     def add_snp(self,locus,position,nucpair):
         self.loci[locus][position] = nucpair
-        
-    # Return a list of SNP positions for a locus    
     def fetch_pos(self,locus):
         pos =  self.loci[locus].keys()
         pos.remove('seq')
         pos.remove('count')
         return pos
-        
     def fetch_snp(self,locus,pos):
         return self.snps[(locus,pos)]
-
     def fetch_vals(self,locus,pos):
         return self.loci[locus][pos]
-        
-# Store locus information for positions that scored higher
-# than the threshold in at least one comparison
 def filter_by_fst(filelist, val, genes):
     print "Filtering comparisons ..."
     # Filter files by fst, retain values >= val
@@ -112,18 +92,15 @@ def filter_by_fst(filelist, val, genes):
     write_tsv("high_fst_loci.tsv", results, header)
     return results
 
-
 # Return a string as a list of characters
 def listify(word):
     result = []
     for char in word:
         result.append(char)
     return result
-    
 # Return a list of characters as a string
 def stringify(charlist):
     return "".join(charlist)
-
 
 # Get consensus sequences and store them by locus 
 def get_seqs(seqfile,genes):
@@ -198,6 +175,8 @@ args = parser.parse_args()
 # Create structure to hold sequence and locus info
 genes = Genes()
 # Object that handles stacks files
+if not args.outdir:
+    args.outdir = "pseudogenomes_fst" + str(args.fst)
 batchfiles = Files(args.infiles, 
                    args.batch,
                    args.outdir,
