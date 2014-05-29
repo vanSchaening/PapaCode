@@ -4,9 +4,9 @@ Code for the Lionfish project
 This repository contains the scripts our lab has written for manipulating the output files from several bioinformatics platforms, mainly from [STACKS](http://creskolab.uoregon.edu/stacks/). Most of the scripts either reconstruct short genome sequences or generate pseudogenomes based on the given input, returning them as .fasta files.
 
 The kinds of pseudogenomes used by our group in this project are the following:
-1. Concatenations of the sequences for an individual's two alleles for a particular loci.
-2. Instead of concatenating the alleles, using IUPAC ambiguity codes in the SNP positions.
-3. For an individual, concatenating all of the SNPs for selected loci.
+* Concatenations of the sequences for an individual's two alleles for a particular loci.
+* Instead of concatenating the alleles, using IUPAC ambiguity codes in the SNP positions.
+* For an individual, concatenating all of the SNPs for selected loci.
 
 ####Pseudomaker
 
