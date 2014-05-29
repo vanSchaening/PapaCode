@@ -36,6 +36,7 @@ else:
 
 # -------- Function definitions --------------------------------------
 
+# Get the indices of relevant columns
 def getNamesAndAttributes(f):
     # Make a list out of the file header
     l = f.readline().strip('\n').split('\t')
@@ -55,6 +56,8 @@ def stringify(charlist):
 def listify(string):
     return [ a for a in string ]
 
+# Return SNPs for a locus as a list of pairs
+# (for both alleles)
 def getMutPairs(muts):
     if not muts:
         return ''
@@ -66,6 +69,7 @@ def getMutPairs(muts):
 def mutPairs(a,b):
     return [ a[i] + b[i] for i in range(len(a)) ]
     
+# Mutate the sequence when returning monoallelic pseudogenomes    
 def mutSeqMono(seq, muts, position):
     # Positions might be strings; try to fix that
     try:
@@ -80,6 +84,7 @@ def mutSeqMono(seq, muts, position):
         seq[pos] = ambiguity[mut]
     return "".join(seq)
 
+# Mutate the sequence for biallelic pseudogenomes
 def mutSeqBi(seq, muts, position):
     try:
         position = [ int(pos) for pos in position ]
@@ -93,6 +98,7 @@ def mutSeqBi(seq, muts, position):
         seq[pos+n] = mut[1]
     return "".join(seq)
 
+# Use N if SNP info is missing
 def fillMissingSnps(maxSnps, muts):
     if not muts:
         return [ "NN" for i in range(maxSnps) ]
@@ -101,6 +107,7 @@ def fillMissingSnps(maxSnps, muts):
 def fastaHeader(words):
     return ">" + " | ".join(words) + "\n"
 
+# Dictionary of IUPAC ambiguity codes
 ambiguity = {"AA": "A",
              "CC": "C",
              "TT": "T",
@@ -140,8 +147,7 @@ if args.snp:
         out.write(fastaHeader([name]))
     if args.alleles == 2:
         tmp = TemporaryFile()
-# Create a fasta file for all names in names
-f.readline()
+
 for line in f:
     # Get Info
     line = line.strip('\n').split('\t')
@@ -181,6 +187,8 @@ for line in f:
         elif args.alleles == 2:
             o[i].write(mutSeqBi(consensus,mutations[i],positions)+"\n")
 
+# Write the second allele from the temporary file onto
+# the appropriate fasta files
 if args.alleles == 2 and args.snp:
     tmp.seek(0,0)
     for line in tmp:
