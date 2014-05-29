@@ -9,16 +9,27 @@ The kinds of pseudogenomes used by our group in this project are the following:
 * For an individual, concatenating all of the SNPs for selected loci.
 
 ####Pseudomaker
+
 __input__
+
 __output__
 
 
 ####Magic
+
 __input__
+
 __output__
 
 
 ####Export To Fasta
 
 __input__:  export data from stacks (usually a file called export_haps.tsv), and optionally a list of loci to filter by.
+
 __output__: sequences reconstructed based on requests. It can either reconstruct biallelic versions of a locus, with both alleles concatenated, or monoallelic versions using IUPAC ambiguity codes. Instead of reconstructing the whole locus, it can instead make a string of concatenated SNPs.
+
+###Contact us
+
+Until 2014, these scripts were written and maintained by [Cassandra Schaening](c.schaening@gmail.com), working with [Ximena Velez-Zuazo](xvelezuazo@gmail.com). 
+
+For more information about Riccardo Papa's lab and the ongoing projects, see our website at http://ricpapa.wix.com/rpapalab.
