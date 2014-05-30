@@ -4,6 +4,8 @@ from stacksFiles import *
 from argparse import ArgumentParser
 
 
+# -------- Argument Parsing ------------------------------------------
+
 parser = ArgumentParser(description="Using Stacks output, create pseudo genomes for loci with FST above a given value. For each locus, a .fasta file will be created, with a pseudosequence for each population, as specified through the parameters.")
 parser.add_argument("infiles",
                     help = "path to Stacks output files for a batch",
@@ -34,6 +36,8 @@ parser.add_argument("--alleles",
 parser.add_argument("--concatenated",
                     help = "instead of having one sequence per locus per individual, concatenate all the loci for each individual",
                     type = bool)
+
+# -------- Functions and Classes ------------------------------------------
 
 class Genes:
     #initialize
