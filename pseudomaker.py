@@ -158,6 +158,14 @@ def get_snps(line,genes):
             snplist[i] = snplist[i].split(":")[0]
         genes.snps[(loc,pos)] = snplist
 
+def fix_positions(genes,seq_length):
+    for locus in genes.loci:
+        for pos in genes.loci[locus]:
+            if isinstance(pos,int):
+                genes.loci[locus][pos%seq_length] = genes.loci[locus][pos]
+                del genes.loci[locus][pos]
+                
+
 def get_snp_nucs(value, thing, char):
     if thing == "1/1":
         return value[1],value[1]
