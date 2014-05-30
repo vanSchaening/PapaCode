@@ -14,6 +14,7 @@ __input__
 
 __output__
 
+Note that, in order to run, `pseudomaker.py` requires the files `tsv.py` and `stacksFiles.py`. 
 
 ####Magic
 
