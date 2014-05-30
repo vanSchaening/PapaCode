@@ -31,6 +31,6 @@ __output__: sequences reconstructed based on requests. It can either reconstruct
 
 ###Contact us
 
-Until 2014, these scripts were written and maintained by [Cassandra Schaening](c.schaening@gmail.com), working with [Ximena Velez-Zuazo](xvelezuazo@gmail.com). 
+Until 2014, these scripts were written and maintained by [Cassandra Schaening](mailto:c.schaening@gmail.com), working with [Ximena Velez-Zuazo](mailto:xvelezuazo@gmail.com). 
 
 For more information about Riccardo Papa's lab and the ongoing projects, see our website at http://ricpapa.wix.com/rpapalab.
